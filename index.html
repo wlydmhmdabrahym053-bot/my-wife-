@@ -85,7 +85,7 @@
     function extractTargetsFromImage(img) {
       targets = [];
       const boxSize = Math.min(width * 0.88, height * 0.68, 560);
-      const sampleSize = 270; // جودة عالية وتفاصيل أدق
+      const sampleSize = 270;
 
       const off = document.createElement("canvas");
       off.width = sampleSize;
@@ -116,7 +116,6 @@
           const b = data[idx + 2];
           const brightness = (r + g + b) / 3;
 
-          // استبعاد الخلفية الداكنة وأخذ الخطوط المضيئة فقط
           if (brightness > 62) {
             targets.push({
               x: offsetX + x * cellW + cellW * 0.5,
@@ -143,7 +142,7 @@
           baseAlpha: targets[i].alpha,
           isTarget: true,
           size: 1.25,
-          speed: 0.065 + Math.random() * 0.045, // سرعة تجمع أسرع وأسلس
+          speed: 0.011 + Math.random() * 0.008, // تجمع أبطأ وأهدأ للصورة
           phase: Math.random() * Math.PI * 2
         });
       }
@@ -169,7 +168,7 @@
       ctx.fillStyle = "rgba(18, 9, 28, 0.42)";
       ctx.fillRect(0, 0, width, height);
 
-      const spawnProgress = Math.min(1, elapsed / 0.8);
+      const spawnProgress = Math.min(1, elapsed / 1.4);
       const visibleCount = Math.floor(particles.length * spawnProgress);
 
       for (let i = 0; i < visibleCount; i++) {
@@ -177,12 +176,12 @@
         const shimmer = 0.82 + 0.18 * Math.sin(elapsed * 3.5 + p.phase);
 
         if (p.isTarget) {
-          if (elapsed > 0.7) {
+          if (elapsed > 1.2) {
             p.x += (p.tx - p.x) * p.speed;
             p.y += (p.ty - p.y) * p.speed;
           } else {
-            p.x += Math.sin(elapsed * 2 + p.phase) * 0.4;
-            p.y += Math.cos(elapsed * 2 + p.phase) * 0.4;
+            p.x += Math.sin(elapsed * 2 + p.phase) * 0.35;
+            p.y += Math.cos(elapsed * 2 + p.phase) * 0.35;
           }
         } else {
           p.x = (p.x + p.vx + width) % width;
@@ -198,9 +197,9 @@
 
       ctx.globalAlpha = 1;
 
-      // بداية أسرع لكتابة الجملة وسرعة كتابة أعلى
-      if (elapsed > 3.6) {
-        const textElapsed = elapsed - 3.6;
+      // تبدأ كتابة الجملة بعد اكتمال تجمع الصورة بهدوء
+      if (elapsed > 8.2) {
+        const textElapsed = elapsed - 8.2;
         const charCount = Math.min(FULL_TEXT.length, Math.floor(textElapsed * 16));
         const currentText = FULL_TEXT.slice(0, charCount);
 
