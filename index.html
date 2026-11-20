@@ -12,7 +12,7 @@
     }
 
     body {
-      background-color: #090710;
+      background-color: #12091c;
       color: #ffffff;
       font-family: "Georgia", "Times New Roman", serif;
       display: flex;
@@ -29,10 +29,10 @@
 
     #hint {
       position: absolute;
-      bottom: 18px;
+      bottom: 20px;
       font-size: 13px;
       letter-spacing: 1px;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.65);
       font-family: sans-serif;
       transition: opacity 0.6s ease;
       pointer-events: none;
@@ -58,7 +58,19 @@
     let loadedImage = null;
 
     const FULL_TEXT = "May Your Love Never End.";
-    const IMAGE_SOURCES = ["couple.png", "couple.jpg", "couple love.jpg"];
+    const PASTEL_PALETTE = [
+      "rgba(255, 248, 252, 0.96)",
+      "rgba(255, 205, 226, 0.94)",
+      "rgba(205, 224, 255, 0.94)",
+      "rgba(234, 208, 255, 0.92)",
+      "rgba(255, 232, 214, 0.90)"
+    ];
+
+    const IMAGE_SOURCES = [
+      "Screenshot_٢٠٢٦-١١-٢٠-١٤-١٠-٤٩-٠١٥_com.miui.gallery-edit.jpg",
+      "couple.jpg",
+      "couple.png"
+    ];
 
     function tryLoadImage(index = 0) {
       if (index >= IMAGE_SOURCES.length) {
@@ -68,7 +80,6 @@
       }
 
       const img = new Image();
-      img.crossOrigin = "anonymous";
       img.onload = () => {
         loadedImage = img;
         extractTargetsFromImage(img);
@@ -77,32 +88,35 @@
       img.onerror = () => {
         tryLoadImage(index + 1);
       };
-      img.src = IMAGE_SOURCES[index];
+      img.src = encodeURI(IMAGE_SOURCES[index]);
     }
 
     function extractTargetsFromImage(img) {
       targets = [];
-      const boxSize = Math.min(width * 0.85, height * 0.65, 520);
-      const sampleSize = 140;
+      const boxSize = Math.min(width * 0.88, height * 0.68, 540);
+      const sampleSize = 165;
 
       const off = document.createElement("canvas");
       off.width = sampleSize;
       off.height = sampleSize;
       const octx = off.getContext("2d");
-      octx.fillStyle = "#000000";
+      octx.fillStyle = "#12091c";
       octx.fillRect(0, 0, sampleSize, sampleSize);
 
-      const scale = Math.min(sampleSize / img.width, sampleSize / img.height);
+      // اقتصاص الجزء السفلي للرسمة وتفادي النص العلوي الموجود داخل لقطة الشاشة
+      const cropTop = Math.floor(img.height * 0.14);
+      const cropHeight = Math.max(1, img.height - cropTop);
+      const scale = Math.min(sampleSize / img.width, sampleSize / cropHeight);
       const drawW = img.width * scale;
-      const drawH = img.height * scale;
+      const drawH = cropHeight * scale;
       const dx = (sampleSize - drawW) / 2;
       const dy = (sampleSize - drawH) / 2;
 
-      octx.drawImage(img, dx, dy, drawW, drawH);
+      octx.drawImage(img, 0, cropTop, img.width, cropHeight, dx, dy, drawW, drawH);
       const data = octx.getImageData(0, 0, sampleSize, sampleSize).data;
 
       const offsetX = (width - boxSize) / 2;
-      const offsetY = (height - boxSize) / 2 + 24;
+      const offsetY = (height - boxSize) / 2 + 34;
       const cellW = boxSize / sampleSize;
       const cellH = boxSize / sampleSize;
 
@@ -114,11 +128,13 @@
           const b = data[idx + 2];
           const brightness = (r + g + b) / 3;
 
-          if (brightness > 65) {
+          if (brightness > 68) {
+            const tint = PASTEL_PALETTE[(x + y) % PASTEL_PALETTE.length];
             targets.push({
-              x: offsetX + x * cellW + cellW * 0.5,
-              y: offsetY + y * cellH + cellH * 0.5,
-              alpha: Math.min(1, brightness / 220)
+              x: offsetX + x * cellW + (Math.random() - 0.5) * 1.4,
+              y: offsetY + y * cellH + (Math.random() - 0.5) * 1.4,
+              color: tint,
+              alpha: Math.min(1, brightness / 210)
             });
           }
         }
@@ -127,7 +143,7 @@
 
     function buildFallbackTargets() {
       targets = [];
-      const boxSize = Math.min(width * 0.85, height * 0.65, 520);
+      const boxSize = Math.min(width * 0.88, height * 0.68, 540);
       const off = document.createElement("canvas");
       off.width = 400;
       off.height = 400;
@@ -138,7 +154,6 @@
       octx.lineCap = "round";
       octx.lineJoin = "round";
 
-      // الشاب بالأعلى
       octx.beginPath();
       octx.moveTo(106, 134);
       octx.bezierCurveTo(92, 86, 130, 44, 182, 42);
@@ -162,7 +177,6 @@
       octx.quadraticCurveTo(178, 186, 158, 214);
       octx.stroke();
 
-      // الفتاة بالأسفل
       octx.beginPath();
       octx.moveTo(208, 182);
       octx.lineTo(182, 204);
@@ -186,7 +200,6 @@
       octx.bezierCurveTo(220, 276, 194, 306, 164, 356);
       octx.stroke();
 
-      // قلب صغير
       octx.beginPath();
       octx.moveTo(264, 144);
       octx.bezierCurveTo(264, 135, 251, 135, 251, 145);
@@ -198,7 +211,7 @@
       const data = octx.getImageData(0, 0, 400, 400).data;
       const step = 3;
       const offsetX = (width - boxSize) / 2;
-      const offsetY = (height - boxSize) / 2 + 24;
+      const offsetY = (height - boxSize) / 2 + 34;
       const scale = boxSize / 400;
 
       for (let y = 0; y < 400; y += step) {
@@ -208,6 +221,7 @@
             targets.push({
               x: offsetX + x * scale,
               y: offsetY + y * scale,
+              color: PASTEL_PALETTE[(x + y) % PASTEL_PALETTE.length],
               alpha: 0.95
             });
           }
@@ -217,7 +231,7 @@
 
     function initParticles() {
       particles = [];
-      const bgCount = 260;
+      const bgCount = 240;
 
       for (let i = 0; i < targets.length; i++) {
         particles.push({
@@ -225,10 +239,11 @@
           y: Math.random() * height,
           tx: targets[i].x,
           ty: targets[i].y,
+          color: targets[i].color,
           baseAlpha: targets[i].alpha,
           isTarget: true,
-          size: 1.5,
-          speed: 0.02 + Math.random() * 0.022,
+          size: Math.random() * 1.1 + 1.1,
+          speed: 0.022 + Math.random() * 0.022,
           phase: Math.random() * Math.PI * 2
         });
       }
@@ -237,11 +252,12 @@
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.12,
-          vy: (Math.random() - 0.5) * 0.12,
+          vx: (Math.random() - 0.5) * 0.14,
+          vy: (Math.random() - 0.5) * 0.14,
+          color: PASTEL_PALETTE[i % PASTEL_PALETTE.length],
           baseAlpha: 0.45,
           isTarget: false,
-          size: Math.random() * 1.1 + 0.5,
+          size: Math.random() * 1.0 + 0.5,
           phase: Math.random() * Math.PI * 2
         });
       }
@@ -250,31 +266,31 @@
     function animate(now) {
       const elapsed = (now - startTime) / 1000;
 
-      ctx.fillStyle = "rgba(9, 7, 16, 0.35)";
+      ctx.fillStyle = "rgba(18, 9, 28, 0.34)";
       ctx.fillRect(0, 0, width, height);
 
-      const spawnProgress = Math.min(1, elapsed / 1.8);
+      const spawnProgress = Math.min(1, elapsed / 1.5);
       const visibleCount = Math.floor(particles.length * spawnProgress);
 
       for (let i = 0; i < visibleCount; i++) {
         const p = particles[i];
-        const pulse = 0.75 + 0.25 * Math.sin(elapsed * 2.8 + p.phase);
+        const shimmer = 0.72 + 0.28 * Math.sin(elapsed * 3.4 + p.phase);
 
         if (p.isTarget) {
-          if (elapsed > 1.8) {
+          if (elapsed > 1.5) {
             p.x += (p.tx - p.x) * p.speed;
             p.y += (p.ty - p.y) * p.speed;
           } else {
-            p.x += Math.sin(elapsed + p.phase) * 0.25;
-            p.y += Math.cos(elapsed + p.phase) * 0.25;
+            p.x += Math.sin(elapsed + p.phase) * 0.35;
+            p.y += Math.cos(elapsed + p.phase) * 0.35;
           }
         } else {
           p.x = (p.x + p.vx + width) % width;
           p.y = (p.y + p.vy + height) % height;
         }
 
-        ctx.globalAlpha = p.baseAlpha * pulse;
-        ctx.fillStyle = "#ffffff";
+        ctx.globalAlpha = p.baseAlpha * shimmer;
+        ctx.fillStyle = p.color;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
@@ -282,18 +298,18 @@
 
       ctx.globalAlpha = 1;
 
-      if (elapsed > 10.6) {
-        const textElapsed = elapsed - 10.6;
-        const charCount = Math.min(FULL_TEXT.length, Math.floor(textElapsed * 6.8));
+      if (elapsed > 10.5) {
+        const textElapsed = elapsed - 10.5;
+        const charCount = Math.min(FULL_TEXT.length, Math.floor(textElapsed * 6.5));
         const currentText = FULL_TEXT.slice(0, charCount);
 
-        const fontSize = Math.max(22, Math.min(34, width * 0.035));
+        const fontSize = Math.max(24, Math.min(38, width * 0.04));
         ctx.font = `italic ${fontSize}px Georgia, "Times New Roman", serif`;
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "center";
 
-        const boxSize = Math.min(width * 0.85, height * 0.65, 520);
-        const textY = Math.max(54, (height - boxSize) / 2 - 10);
+        const boxSize = Math.min(width * 0.88, height * 0.68, 540);
+        const textY = Math.max(58, (height - boxSize) / 2 - 8);
         ctx.fillText(currentText, width / 2, textY);
       }
 
