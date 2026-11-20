@@ -12,7 +12,7 @@
     }
 
     body {
-      background-color: #050508;
+      background-color: #060609;
       color: #ffffff;
       font-family: "Georgia", "Times New Roman", serif;
       display: flex;
@@ -68,7 +68,7 @@
     function generateTargets() {
       targets = [];
       const offCanvas = document.createElement("canvas");
-      const boxSize = Math.min(width * 0.86, height * 0.64, 520);
+      const boxSize = Math.min(width * 0.88, height * 0.66, 540);
       offCanvas.width = Math.floor(boxSize);
       offCanvas.height = Math.floor(boxSize);
       const octx = offCanvas.getContext("2d");
@@ -77,97 +77,98 @@
       octx.save();
       octx.scale(s, s);
       octx.strokeStyle = "#ffffff";
-      octx.lineWidth = 2.6;
+      octx.lineWidth = 2.4;
       octx.lineCap = "round";
       octx.lineJoin = "round";
 
-      // الشاب بالأعلى متجهاً للأسفل ولليمين
+      // 1. الشاب بالأعلى (رأس مرفوع وخصلات شعر + وجه متجه للأسفل واليمين)
       octx.beginPath();
-      // شعر كثيف وخصلات متموّجة للخلف والأعلى
-      octx.moveTo(104, 134);
-      octx.bezierCurveTo(86, 90, 122, 46, 172, 42);
-      octx.bezierCurveTo(212, 38, 238, 68, 224, 102);
+      // محيط الشعر الخارجي للشاب
+      octx.moveTo(98, 134);
+      octx.bezierCurveTo(84, 86, 124, 42, 178, 38);
+      octx.bezierCurveTo(216, 36, 238, 62, 224, 96);
 
-      octx.moveTo(114, 126);
-      octx.bezierCurveTo(124, 78, 174, 56, 214, 78);
+      // خصلات الشعر المتتالية من اليسار لليمين
+      octx.moveTo(108, 128);
+      octx.bezierCurveTo(118, 76, 172, 52, 218, 72);
 
-      octx.moveTo(128, 132);
-      octx.bezierCurveTo(148, 86, 192, 74, 220, 94);
+      octx.moveTo(122, 132);
+      octx.bezierCurveTo(142, 82, 188, 68, 222, 86);
 
-      octx.moveTo(144, 136);
-      octx.bezierCurveTo(164, 98, 200, 90, 218, 104);
+      octx.moveTo(138, 136);
+      octx.bezierCurveTo(160, 96, 198, 86, 220, 98);
 
-      // جبهة وأنف وشفاه وذقن الشاب
-      octx.moveTo(214, 102);
-      octx.lineTo(228, 122);
-      octx.lineTo(218, 128);
-      octx.quadraticCurveTo(222, 134, 216, 140);
-      octx.quadraticCurveTo(214, 156, 192, 160);
-      octx.lineTo(174, 157);
+      // وجه الشاب (الجبين، الأنف، الفم، الذقن)
+      octx.moveTo(214, 98);
+      octx.lineTo(232, 118);
+      octx.lineTo(220, 124);
+      octx.quadraticCurveTo(224, 130, 218, 136);
+      octx.quadraticCurveTo(216, 152, 194, 156);
+      octx.lineTo(176, 153);
 
-      // عين الشاب المغلقة
-      octx.moveTo(194, 112);
-      octx.quadraticCurveTo(202, 116, 209, 111);
+      // العين المغلقة للشاب
+      octx.moveTo(196, 108);
+      octx.quadraticCurveTo(204, 112, 211, 107);
 
       // رقبة وكتف الشاب
-      octx.moveTo(132, 138);
-      octx.bezierCurveTo(122, 186, 98, 236, 92, 290);
-      octx.lineTo(90, 352);
+      octx.moveTo(130, 136);
+      octx.bezierCurveTo(120, 182, 96, 232, 90, 286);
+      octx.lineTo(88, 352);
 
-      octx.moveTo(176, 158);
-      octx.quadraticCurveTo(176, 188, 156, 216);
+      octx.moveTo(178, 154);
+      octx.quadraticCurveTo(178, 184, 158, 212);
       octx.stroke();
 
-      // الفتاة بالأسفل متجهة للأعلى ولليسار
+      // 2. الفتاة بالأسفل (وجه متجه للأعلى واليسار + شعر طويل منسدل للأسفل)
       octx.beginPath();
       // جبهة وأنف وشفاه وذقن الفتاة
-      octx.moveTo(206, 184);
-      octx.lineTo(180, 205);
-      octx.lineTo(188, 213);
-      octx.quadraticCurveTo(184, 220, 192, 226);
-      octx.quadraticCurveTo(198, 244, 220, 246);
+      octx.moveTo(208, 182);
+      octx.lineTo(182, 204);
+      octx.lineTo(190, 212);
+      octx.quadraticCurveTo(186, 219, 194, 225);
+      octx.quadraticCurveTo(200, 242, 222, 244);
 
       // حاجب وعين الفتاة
-      octx.moveTo(202, 197);
-      octx.quadraticCurveTo(212, 192, 221, 198);
-      octx.moveTo(204, 204);
-      octx.quadraticCurveTo(212, 200, 220, 205);
+      octx.moveTo(204, 195);
+      octx.quadraticCurveTo(214, 190, 223, 196);
+      octx.moveTo(206, 202);
+      octx.quadraticCurveTo(214, 198, 222, 203);
 
-      // شعر الفتاة الطويل المتموج للأسفل
-      octx.moveTo(206, 184);
-      octx.bezierCurveTo(244, 172, 278, 200, 288, 246);
-      octx.bezierCurveTo(296, 284, 282, 318, 300, 354);
+      // شعر الفتاة الطويل المنسدل للأسفل على اليمين
+      octx.moveTo(208, 182);
+      octx.bezierCurveTo(246, 170, 280, 198, 290, 246);
+      octx.bezierCurveTo(298, 284, 284, 318, 302, 356);
 
-      octx.moveTo(226, 190);
-      octx.bezierCurveTo(256, 216, 252, 266, 244, 308);
-      octx.quadraticCurveTo(240, 332, 254, 354);
+      octx.moveTo(228, 188);
+      octx.bezierCurveTo(258, 214, 254, 266, 246, 308);
+      octx.quadraticCurveTo(242, 332, 256, 356);
 
-      octx.moveTo(244, 200);
-      octx.bezierCurveTo(270, 230, 268, 280, 264, 320);
-      octx.lineTo(276, 354);
+      octx.moveTo(246, 198);
+      octx.bezierCurveTo(272, 228, 270, 280, 266, 320);
+      octx.lineTo(278, 356);
 
-      octx.moveTo(260, 212);
-      octx.bezierCurveTo(280, 242, 278, 288, 276, 324);
-      octx.lineTo(288, 354);
+      octx.moveTo(262, 210);
+      octx.bezierCurveTo(282, 240, 280, 288, 278, 324);
+      octx.lineTo(290, 356);
 
       // رقبة وكتف الفتاة
-      octx.moveTo(220, 246);
-      octx.bezierCurveTo(218, 278, 192, 308, 162, 354);
+      octx.moveTo(222, 244);
+      octx.bezierCurveTo(220, 276, 194, 306, 164, 356);
       octx.stroke();
 
-      // قلب صغير على اليمين بينهما
+      // 3. قلب صغير على اليمين فوق شعر الفتاة
       octx.beginPath();
-      octx.moveTo(258, 146);
-      octx.bezierCurveTo(258, 137, 245, 137, 245, 147);
-      octx.bezierCurveTo(245, 156, 258, 164, 258, 169);
-      octx.bezierCurveTo(258, 164, 271, 156, 271, 147);
-      octx.bezierCurveTo(271, 137, 258, 137, 258, 146);
+      octx.moveTo(264, 144);
+      octx.bezierCurveTo(264, 135, 251, 135, 251, 145);
+      octx.bezierCurveTo(251, 154, 264, 162, 264, 167);
+      octx.bezierCurveTo(264, 162, 277, 154, 277, 145);
+      octx.bezierCurveTo(277, 135, 264, 135, 264, 144);
       octx.stroke();
 
       octx.restore();
 
       const imgData = octx.getImageData(0, 0, offCanvas.width, offCanvas.height).data;
-      const step = Math.max(3, Math.floor(boxSize / 160));
+      const step = Math.max(3, Math.floor(boxSize / 165));
       const offsetX = (width - offCanvas.width) / 2;
       const offsetY = (height - offCanvas.height) / 2 + 28;
 
@@ -176,8 +177,8 @@
           const idx = (y * offCanvas.width + x) * 4;
           if (imgData[idx + 3] > 110) {
             targets.push({
-              x: offsetX + x + (Math.random() - 0.5) * 1.4,
-              y: offsetY + y + (Math.random() - 0.5) * 1.4
+              x: offsetX + x + (Math.random() - 0.5) * 1.2,
+              y: offsetY + y + (Math.random() - 0.5) * 1.2
             });
           }
         }
@@ -186,7 +187,7 @@
 
     function initParticles() {
       particles = [];
-      const bgStarsCount = 320;
+      const bgStarsCount = 300;
 
       for (let i = 0; i < targets.length; i++) {
         particles.push({
@@ -195,7 +196,7 @@
           tx: targets[i].x,
           ty: targets[i].y,
           isTarget: true,
-          size: Math.random() * 1.2 + 1.0,
+          size: Math.random() * 1.15 + 1.0,
           speed: 0.022 + Math.random() * 0.024,
           phase: Math.random() * Math.PI * 2
         });
@@ -208,7 +209,7 @@
           vx: (Math.random() - 0.5) * 0.12,
           vy: (Math.random() - 0.5) * 0.12,
           isTarget: false,
-          size: Math.random() * 1.1 + 0.5,
+          size: Math.random() * 1.0 + 0.5,
           phase: Math.random() * Math.PI * 2
         });
       }
@@ -217,7 +218,7 @@
     function animate(now) {
       const elapsed = (now - startTime) / 1000;
 
-      ctx.fillStyle = "rgba(5, 5, 8, 0.36)";
+      ctx.fillStyle = "rgba(6, 6, 9, 0.36)";
       ctx.fillRect(0, 0, width, height);
 
       const spawnProgress = Math.min(1, elapsed / 1.8);
@@ -231,8 +232,8 @@
           if (elapsed > 1.8) {
             p.x += (p.tx - p.x) * p.speed;
             p.y += (p.ty - p.y) * p.speed;
-            p.x += Math.sin(elapsed * 2.0 + p.phase) * 0.06;
-            p.y += Math.cos(elapsed * 2.0 + p.phase) * 0.06;
+            p.x += Math.sin(elapsed * 2.0 + p.phase) * 0.05;
+            p.y += Math.cos(elapsed * 2.0 + p.phase) * 0.05;
           } else {
             p.x += Math.sin(elapsed + p.phase) * 0.3;
             p.y += Math.cos(elapsed + p.phase) * 0.3;
@@ -251,8 +252,8 @@
 
       ctx.globalAlpha = 1;
 
-      if (elapsed > 10.8) {
-        const textElapsed = elapsed - 10.8;
+      if (elapsed > 10.6) {
+        const textElapsed = elapsed - 10.6;
         const charCount = Math.min(FULL_TEXT.length, Math.floor(textElapsed * 6.8));
         const currentText = FULL_TEXT.slice(0, charCount);
 
@@ -261,7 +262,7 @@
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "center";
 
-        const boxSize = Math.min(width * 0.86, height * 0.64, 520);
+        const boxSize = Math.min(width * 0.88, height * 0.66, 540);
         const textY = Math.max(58, (height - boxSize) / 2 - 8);
         ctx.fillText(currentText, width / 2, textY);
       }
