@@ -12,7 +12,7 @@
     }
 
     body {
-      background-color: #060609;
+      background-color: #090710;
       color: #ffffff;
       font-family: "Georgia", "Times New Roman", serif;
       display: flex;
@@ -29,10 +29,10 @@
 
     #hint {
       position: absolute;
-      bottom: 20px;
+      bottom: 18px;
       font-size: 13px;
       letter-spacing: 1px;
-      color: rgba(255, 255, 255, 0.65);
+      color: rgba(255, 255, 255, 0.7);
       font-family: sans-serif;
       transition: opacity 0.6s ease;
       pointer-events: none;
@@ -55,108 +55,138 @@
     let particles = [];
     let targets = [];
     let startTime = performance.now();
+    let loadedImage = null;
 
     const FULL_TEXT = "May Your Love Never End.";
+    const IMAGE_SOURCES = ["couple.png", "couple.jpg", "couple love.jpg"];
 
-    function resize() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-      generateTargets();
-      initParticles();
+    function tryLoadImage(index = 0) {
+      if (index >= IMAGE_SOURCES.length) {
+        buildFallbackTargets();
+        initParticles();
+        return;
+      }
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        loadedImage = img;
+        extractTargetsFromImage(img);
+        initParticles();
+      };
+      img.onerror = () => {
+        tryLoadImage(index + 1);
+      };
+      img.src = IMAGE_SOURCES[index];
     }
 
-    function generateTargets() {
+    function extractTargetsFromImage(img) {
       targets = [];
-      const offCanvas = document.createElement("canvas");
-      const boxSize = Math.min(width * 0.88, height * 0.66, 540);
-      offCanvas.width = Math.floor(boxSize);
-      offCanvas.height = Math.floor(boxSize);
-      const octx = offCanvas.getContext("2d");
+      const boxSize = Math.min(width * 0.85, height * 0.65, 520);
+      const sampleSize = 140;
 
-      const s = boxSize / 400;
-      octx.save();
-      octx.scale(s, s);
+      const off = document.createElement("canvas");
+      off.width = sampleSize;
+      off.height = sampleSize;
+      const octx = off.getContext("2d");
+      octx.fillStyle = "#000000";
+      octx.fillRect(0, 0, sampleSize, sampleSize);
+
+      const scale = Math.min(sampleSize / img.width, sampleSize / img.height);
+      const drawW = img.width * scale;
+      const drawH = img.height * scale;
+      const dx = (sampleSize - drawW) / 2;
+      const dy = (sampleSize - drawH) / 2;
+
+      octx.drawImage(img, dx, dy, drawW, drawH);
+      const data = octx.getImageData(0, 0, sampleSize, sampleSize).data;
+
+      const offsetX = (width - boxSize) / 2;
+      const offsetY = (height - boxSize) / 2 + 24;
+      const cellW = boxSize / sampleSize;
+      const cellH = boxSize / sampleSize;
+
+      for (let y = 0; y < sampleSize; y++) {
+        for (let x = 0; x < sampleSize; x++) {
+          const idx = (y * sampleSize + x) * 4;
+          const r = data[idx];
+          const g = data[idx + 1];
+          const b = data[idx + 2];
+          const brightness = (r + g + b) / 3;
+
+          if (brightness > 65) {
+            targets.push({
+              x: offsetX + x * cellW + cellW * 0.5,
+              y: offsetY + y * cellH + cellH * 0.5,
+              alpha: Math.min(1, brightness / 220)
+            });
+          }
+        }
+      }
+    }
+
+    function buildFallbackTargets() {
+      targets = [];
+      const boxSize = Math.min(width * 0.85, height * 0.65, 520);
+      const off = document.createElement("canvas");
+      off.width = 400;
+      off.height = 400;
+      const octx = off.getContext("2d");
+
       octx.strokeStyle = "#ffffff";
-      octx.lineWidth = 2.4;
+      octx.lineWidth = 2.6;
       octx.lineCap = "round";
       octx.lineJoin = "round";
 
-      // 1. الشاب بالأعلى (رأس مرفوع وخصلات شعر + وجه متجه للأسفل واليمين)
+      // الشاب بالأعلى
       octx.beginPath();
-      // محيط الشعر الخارجي للشاب
-      octx.moveTo(98, 134);
-      octx.bezierCurveTo(84, 86, 124, 42, 178, 38);
-      octx.bezierCurveTo(216, 36, 238, 62, 224, 96);
-
-      // خصلات الشعر المتتالية من اليسار لليمين
-      octx.moveTo(108, 128);
-      octx.bezierCurveTo(118, 76, 172, 52, 218, 72);
-
-      octx.moveTo(122, 132);
-      octx.bezierCurveTo(142, 82, 188, 68, 222, 86);
-
-      octx.moveTo(138, 136);
-      octx.bezierCurveTo(160, 96, 198, 86, 220, 98);
-
-      // وجه الشاب (الجبين، الأنف، الفم، الذقن)
-      octx.moveTo(214, 98);
-      octx.lineTo(232, 118);
-      octx.lineTo(220, 124);
-      octx.quadraticCurveTo(224, 130, 218, 136);
-      octx.quadraticCurveTo(216, 152, 194, 156);
-      octx.lineTo(176, 153);
-
-      // العين المغلقة للشاب
-      octx.moveTo(196, 108);
-      octx.quadraticCurveTo(204, 112, 211, 107);
-
-      // رقبة وكتف الشاب
-      octx.moveTo(130, 136);
-      octx.bezierCurveTo(120, 182, 96, 232, 90, 286);
-      octx.lineTo(88, 352);
-
-      octx.moveTo(178, 154);
-      octx.quadraticCurveTo(178, 184, 158, 212);
+      octx.moveTo(106, 134);
+      octx.bezierCurveTo(92, 86, 130, 44, 182, 42);
+      octx.bezierCurveTo(218, 40, 236, 66, 222, 98);
+      octx.moveTo(116, 128);
+      octx.bezierCurveTo(126, 78, 176, 56, 218, 76);
+      octx.moveTo(130, 132);
+      octx.bezierCurveTo(150, 86, 192, 74, 220, 92);
+      octx.moveTo(214, 100);
+      octx.lineTo(230, 120);
+      octx.lineTo(220, 126);
+      octx.quadraticCurveTo(224, 132, 218, 138);
+      octx.quadraticCurveTo(216, 154, 194, 158);
+      octx.lineTo(176, 155);
+      octx.moveTo(196, 110);
+      octx.quadraticCurveTo(204, 114, 211, 109);
+      octx.moveTo(132, 138);
+      octx.bezierCurveTo(122, 184, 98, 234, 92, 288);
+      octx.lineTo(90, 352);
+      octx.moveTo(178, 156);
+      octx.quadraticCurveTo(178, 186, 158, 214);
       octx.stroke();
 
-      // 2. الفتاة بالأسفل (وجه متجه للأعلى واليسار + شعر طويل منسدل للأسفل)
+      // الفتاة بالأسفل
       octx.beginPath();
-      // جبهة وأنف وشفاه وذقن الفتاة
       octx.moveTo(208, 182);
       octx.lineTo(182, 204);
       octx.lineTo(190, 212);
       octx.quadraticCurveTo(186, 219, 194, 225);
       octx.quadraticCurveTo(200, 242, 222, 244);
-
-      // حاجب وعين الفتاة
       octx.moveTo(204, 195);
       octx.quadraticCurveTo(214, 190, 223, 196);
       octx.moveTo(206, 202);
       octx.quadraticCurveTo(214, 198, 222, 203);
-
-      // شعر الفتاة الطويل المنسدل للأسفل على اليمين
       octx.moveTo(208, 182);
       octx.bezierCurveTo(246, 170, 280, 198, 290, 246);
       octx.bezierCurveTo(298, 284, 284, 318, 302, 356);
-
       octx.moveTo(228, 188);
       octx.bezierCurveTo(258, 214, 254, 266, 246, 308);
       octx.quadraticCurveTo(242, 332, 256, 356);
-
       octx.moveTo(246, 198);
       octx.bezierCurveTo(272, 228, 270, 280, 266, 320);
       octx.lineTo(278, 356);
-
-      octx.moveTo(262, 210);
-      octx.bezierCurveTo(282, 240, 280, 288, 278, 324);
-      octx.lineTo(290, 356);
-
-      // رقبة وكتف الفتاة
       octx.moveTo(222, 244);
       octx.bezierCurveTo(220, 276, 194, 306, 164, 356);
       octx.stroke();
 
-      // 3. قلب صغير على اليمين فوق شعر الفتاة
+      // قلب صغير
       octx.beginPath();
       octx.moveTo(264, 144);
       octx.bezierCurveTo(264, 135, 251, 135, 251, 145);
@@ -165,20 +195,20 @@
       octx.bezierCurveTo(277, 135, 264, 135, 264, 144);
       octx.stroke();
 
-      octx.restore();
+      const data = octx.getImageData(0, 0, 400, 400).data;
+      const step = 3;
+      const offsetX = (width - boxSize) / 2;
+      const offsetY = (height - boxSize) / 2 + 24;
+      const scale = boxSize / 400;
 
-      const imgData = octx.getImageData(0, 0, offCanvas.width, offCanvas.height).data;
-      const step = Math.max(3, Math.floor(boxSize / 165));
-      const offsetX = (width - offCanvas.width) / 2;
-      const offsetY = (height - offCanvas.height) / 2 + 28;
-
-      for (let y = 0; y < offCanvas.height; y += step) {
-        for (let x = 0; x < offCanvas.width; x += step) {
-          const idx = (y * offCanvas.width + x) * 4;
-          if (imgData[idx + 3] > 110) {
+      for (let y = 0; y < 400; y += step) {
+        for (let x = 0; x < 400; x += step) {
+          const idx = (y * 400 + x) * 4;
+          if (data[idx + 3] > 110) {
             targets.push({
-              x: offsetX + x + (Math.random() - 0.5) * 1.2,
-              y: offsetY + y + (Math.random() - 0.5) * 1.2
+              x: offsetX + x * scale,
+              y: offsetY + y * scale,
+              alpha: 0.95
             });
           }
         }
@@ -187,7 +217,7 @@
 
     function initParticles() {
       particles = [];
-      const bgStarsCount = 300;
+      const bgCount = 260;
 
       for (let i = 0; i < targets.length; i++) {
         particles.push({
@@ -195,21 +225,23 @@
           y: Math.random() * height,
           tx: targets[i].x,
           ty: targets[i].y,
+          baseAlpha: targets[i].alpha,
           isTarget: true,
-          size: Math.random() * 1.15 + 1.0,
-          speed: 0.022 + Math.random() * 0.024,
+          size: 1.5,
+          speed: 0.02 + Math.random() * 0.022,
           phase: Math.random() * Math.PI * 2
         });
       }
 
-      for (let i = 0; i < bgStarsCount; i++) {
+      for (let i = 0; i < bgCount; i++) {
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
           vx: (Math.random() - 0.5) * 0.12,
           vy: (Math.random() - 0.5) * 0.12,
+          baseAlpha: 0.45,
           isTarget: false,
-          size: Math.random() * 1.0 + 0.5,
+          size: Math.random() * 1.1 + 0.5,
           phase: Math.random() * Math.PI * 2
         });
       }
@@ -218,7 +250,7 @@
     function animate(now) {
       const elapsed = (now - startTime) / 1000;
 
-      ctx.fillStyle = "rgba(6, 6, 9, 0.36)";
+      ctx.fillStyle = "rgba(9, 7, 16, 0.35)";
       ctx.fillRect(0, 0, width, height);
 
       const spawnProgress = Math.min(1, elapsed / 1.8);
@@ -226,24 +258,22 @@
 
       for (let i = 0; i < visibleCount; i++) {
         const p = particles[i];
-        const twinkle = 0.72 + 0.28 * Math.sin(elapsed * 3.0 + p.phase);
+        const pulse = 0.75 + 0.25 * Math.sin(elapsed * 2.8 + p.phase);
 
         if (p.isTarget) {
           if (elapsed > 1.8) {
             p.x += (p.tx - p.x) * p.speed;
             p.y += (p.ty - p.y) * p.speed;
-            p.x += Math.sin(elapsed * 2.0 + p.phase) * 0.05;
-            p.y += Math.cos(elapsed * 2.0 + p.phase) * 0.05;
           } else {
-            p.x += Math.sin(elapsed + p.phase) * 0.3;
-            p.y += Math.cos(elapsed + p.phase) * 0.3;
+            p.x += Math.sin(elapsed + p.phase) * 0.25;
+            p.y += Math.cos(elapsed + p.phase) * 0.25;
           }
         } else {
           p.x = (p.x + p.vx + width) % width;
           p.y = (p.y + p.vy + height) % height;
         }
 
-        ctx.globalAlpha = twinkle;
+        ctx.globalAlpha = p.baseAlpha * pulse;
         ctx.fillStyle = "#ffffff";
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -262,12 +292,23 @@
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "center";
 
-        const boxSize = Math.min(width * 0.88, height * 0.66, 540);
-        const textY = Math.max(58, (height - boxSize) / 2 - 8);
+        const boxSize = Math.min(width * 0.85, height * 0.65, 520);
+        const textY = Math.max(54, (height - boxSize) / 2 - 10);
         ctx.fillText(currentText, width / 2, textY);
       }
 
       requestAnimationFrame(animate);
+    }
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      if (loadedImage) {
+        extractTargetsFromImage(loadedImage);
+      } else {
+        buildFallbackTargets();
+      }
+      initParticles();
     }
 
     window.addEventListener("click", () => {
@@ -279,7 +320,9 @@
     });
 
     window.addEventListener("resize", resize);
-    resize();
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    tryLoadImage(0);
     requestAnimationFrame(animate);
   </script>
 </body>
